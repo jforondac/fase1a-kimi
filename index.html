@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios</title>
+  <style>
+    /* Estado de carga: grande y centrado */
+    .loading {
+      font-size: 20px;
+      color: #555;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    /* Estado de error: rojo */
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    /* Lista de usuarios: tarjetas simples */
+    .usuario {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 8px;
+    }
+
+    .oculto {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lista de Usuarios</h1>
+
+  <!-- Estado: Loading -->
+  <div id="loading" class="loading">🔄 Cargando usuarios...</div>
+
+  <!-- Estado: Error -->
+  <div id="error" class="error oculto">❌ No se pudieron cargar los usuarios.</div>
+
+  <!-- Estado: Success -->
+  <div id="lista" class="lista"></div>
+
+  <!-- El script con los datos -->
+  <script src="index.js"></script>
+</body>
+</html>
