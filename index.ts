@@ -42,9 +42,6 @@ async function iniciar() {
 
 
 
-
-    
-        // Creamos las cards futuristas
     const html = usuarios.map(usuario => {
       const inicial = usuario.name.charAt(0);
       return `
@@ -92,13 +89,6 @@ async function iniciar() {
         </div>
       `;
     }).join("");
-
-
-
-
-
-
-
     listaDiv.innerHTML = html;
   }
 }
