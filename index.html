@@ -3,49 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Usuarios</title>
-  <style>
-    /* Estado de carga: grande y centrado */
-    .loading {
-      font-size: 20px;
-      color: #555;
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    /* Estado de error: rojo */
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    /* Lista de usuarios: tarjetas simples */
-    .usuario {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin: 10px;
-      border-radius: 8px;
-    }
-
-    .oculto {
-      display: none;
-    }
-  </style>
+  <title>Directorio de Usuarios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <h1>Lista de Usuarios</h1>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans antialiased selection:bg-cyan-500/30">
 
-  <!-- Estado: Loading -->
-  <div id="loading" class="loading">🔄 Cargando usuarios...</div>
+  <div class="max-w-7xl mx-auto px-4 py-12">
 
-  <!-- Estado: Error -->
-  <div id="error" class="error oculto">❌ No se pudieron cargar los usuarios.</div>
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-2">
+        Directorio de Usuarios
+      </h1>
+      <p class="text-slate-400 text-sm tracking-widest uppercase">Datos en vivo · JSONPlaceholder API</p>
+    </header>
 
-  <!-- Estado: Success -->
-  <div id="lista" class="lista"></div>
+    <div id="loading" class="flex flex-col items-center justify-center gap-4 py-20">
+      <div class="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
+      <p class="text-cyan-400 font-medium tracking-wide animate-pulse">Sincronizando datos...</p>
+    </div>
 
-  <!-- El script con los datos -->
+    <div id="error" class="hidden max-w-md mx-auto">
+      <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center backdrop-blur-sm">
+        <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <h3 class="text-red-300 font-semibold mb-1">Conexión fallida</h3>
+        <p class="text-red-400/70 text-sm">Verifica tu red e intenta recargar.</p>
+      </div>
+    </div>
+    <div id="lista" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+  </div>
+
   <script src="index.js"></script>
 </body>
 </html>
