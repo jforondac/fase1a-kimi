@@ -20,9 +20,9 @@ const listaDiv = getElementByIdOrThrow<HTMLDivElement>("lista");
 interface Usuario {
   id: number;
   name: string;
-  username: string;      // API lo envía, lo documentamos
+  username: string;      
   email: string;
-  address?: {            // API lo envía, lo documentamos como opcional
+  address?: {            
     street: string;
     suite: string;
     city: string;
@@ -34,7 +34,7 @@ interface Usuario {
   };
   phone: string;
   website: string;
-  company?: {            // API lo envía, lo documentamos como opcional
+  company?: {           
     name: string;
     catchPhrase: string;
     bs: string;
@@ -91,37 +91,27 @@ async function obtenerUsuarios(): Promise<FetchResult> {
   }
 }
 
-
-// Helper: crea un SVG icono seguro (sin innerHTML)
 function crearIcono(tipo: "email" | "phone" | "link"): SVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
-  svg.setAttribute("fill", "none");
-  svg.setAttribute("stroke", "currentColor");
-  svg.setAttribute("viewBox", "0 0 24 24");
 
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("stroke-linecap", "round");
-  path.setAttribute("stroke-linejoin", "round");
-  path.setAttribute("stroke-width", "2");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
 
   if (tipo === "email") {
     svg.classList.add("w-4", "h-4", "text-cyan-500/70");
-    path.setAttribute("d", "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z");
+    use.setAttribute("href", "#icon-email");
   } else if (tipo === "phone") {
     svg.classList.add("w-4", "h-4", "text-purple-500/70");
-    path.setAttribute("d", "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z");
+    use.setAttribute("href", "#icon-phone");
   } else {
     svg.classList.add("w-3", "h-3", "text-cyan-500/70");
-    path.setAttribute("d", "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14");
+    use.setAttribute("href", "#icon-link");
   }
 
-  svg.appendChild(path)
+  svg.appendChild(use);
   return svg;
 }
-
-
 
 // Función segura: crea una tarjeta de usuario usando DOM API (no innerHTML)
 function crearTarjeta(usuario: Usuario): HTMLElement {
@@ -171,7 +161,6 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
   emailLink.className = "hover:text-cyan-400 transition-colors";
   emailP.appendChild(emailLink);
 
-  // 🔑 ESTA LÍNEA FALTABA
   const phoneP = document.createElement("p");
   phoneP.className = "text-slate-500 text-sm flex items-center gap-2";
   phoneP.appendChild(crearIcono("phone"));
