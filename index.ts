@@ -3,23 +3,66 @@ function announceStatus(mensaje: string) {
   if (announcer) announcer.textContent = mensaje;
 }
 
-const loadingDiv = document.getElementById("loading") as HTMLDivElement;
-const errorDiv = document.getElementById("error") as HTMLDivElement;
-const listaDiv = document.getElementById("lista") as HTMLDivElement;
+function getElementByIdOrThrow<T extends HTMLElement>(id: string): T {
+  const element = document.getElementById(id);
+  if (!element) {
+    throw new Error(`Elemento #${id} no encontrado en el DOM. Verifica que el ID exista en el HTML.`);
+  }
+  return element as T;
+}
+
+const loadingDiv = getElementByIdOrThrow<HTMLDivElement>("loading");
+const errorDiv = getElementByIdOrThrow<HTMLDivElement>("error");
+const listaDiv = getElementByIdOrThrow<HTMLDivElement>("lista");
 
 
 
 interface Usuario {
   id: number;
   name: string;
+  username: string;      // API lo envía, lo documentamos
   email: string;
+  address?: {            // API lo envía, lo documentamos como opcional
+    street: string;
+    suite: string;
+    city: string;
+    zipcode: string;
+    geo: {
+      lat: string;
+      lng: string;
+    };
+  };
   phone: string;
   website: string;
+  company?: {            // API lo envía, lo documentamos como opcional
+    name: string;
+    catchPhrase: string;
+    bs: string;
+  };
 }
+
+
+function esUsuario(obj: unknown): obj is Usuario {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "id" in obj && typeof (obj as Record<string, unknown>).id === "number" &&
+    "name" in obj && typeof (obj as Record<string, unknown>).name === "string" &&
+    "username" in obj && typeof (obj as Record<string, unknown>).username === "string" &&
+    "email" in obj && typeof (obj as Record<string, unknown>).email === "string" &&
+    "phone" in obj && typeof (obj as Record<string, unknown>).phone === "string" &&
+    "website" in obj && typeof (obj as Record<string, unknown>).website === "string"
+  );
+}
+
+
+
 
 type FetchResult = 
   | { ok: true; data: Usuario[] }
   | { ok: false; error: string };
+
+
 
 async function obtenerUsuarios(): Promise<FetchResult> {
   try {
@@ -29,8 +72,19 @@ async function obtenerUsuarios(): Promise<FetchResult> {
       return { ok: false, error: `HTTP ${response.status}` };
     }
 
-    const datos = await response.json();
-    return { ok: true, data: datos as Usuario[] };
+    const datos: unknown = await response.json();
+
+    if (!Array.isArray(datos)) {
+      return { ok: false, error: "La API no devolvió un array" };
+    }
+
+    const usuariosValidados = datos.filter(esUsuario);
+
+    if (usuariosValidados.length === 0 && datos.length > 0) {
+      return { ok: false, error: "Todos los datos de la API fueron inválidos" };
+    }
+
+    return { ok: true, data: usuariosValidados };
 
   } catch (error) {
     return { ok: false, error: (error as Error).message };
@@ -106,7 +160,6 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
   const contacto = document.createElement("div");
   contacto.className = "space-y-2";
 
-   // 🔑 ESTA LÍNEA FALTABA
   const emailP = document.createElement("p");
   emailP.className = "text-slate-400 text-sm flex items-center gap-2";
   emailP.appendChild(crearIcono("email"));
@@ -158,6 +211,19 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
   return card;
 }
 
+function mostrarEstado(estado: "loading" | "error" | "lista") {
+  loadingDiv.classList.add("hidden");
+  errorDiv.classList.add("hidden");
+  listaDiv.classList.add("hidden");
+  if (estado === "loading") {
+    loadingDiv.classList.remove("hidden");
+  } else if (estado === "error") {
+    errorDiv.classList.remove("hidden");
+  } else {
+    listaDiv.classList.remove("hidden");
+  }
+}
+
 
 async function iniciar() {
   mostrarEstado("loading");
@@ -188,20 +254,23 @@ async function iniciar() {
   }
 }
 
+
+
+// Botón de reintentar
+const btnRetry = document.getElementById("btn-retry");
+if (btnRetry) {
+  btnRetry.addEventListener("click", () => {
+    iniciar();
+  });
+}
+
+
+
+
+
 iniciar();
 
 
-function mostrarEstado(estado: "loading" | "error" | "lista") {
-  loadingDiv.classList.add("hidden");
-  errorDiv.classList.add("hidden");
-  listaDiv.classList.add("hidden");
-  if (estado === "loading") {
-    loadingDiv.classList.remove("hidden");
-  } else if (estado === "error") {
-    errorDiv.classList.remove("hidden");
-  } else {
-    listaDiv.classList.remove("hidden");
-  }
-}
+
 
 

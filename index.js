@@ -4,9 +4,26 @@ function announceStatus(mensaje) {
     if (announcer)
         announcer.textContent = mensaje;
 }
-const loadingDiv = document.getElementById("loading");
-const errorDiv = document.getElementById("error");
-const listaDiv = document.getElementById("lista");
+function getElementByIdOrThrow(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        throw new Error(`Elemento #${id} no encontrado en el DOM. Verifica que el ID exista en el HTML.`);
+    }
+    return element;
+}
+const loadingDiv = getElementByIdOrThrow("loading");
+const errorDiv = getElementByIdOrThrow("error");
+const listaDiv = getElementByIdOrThrow("lista");
+function esUsuario(obj) {
+    return (typeof obj === "object" &&
+        obj !== null &&
+        "id" in obj && typeof obj.id === "number" &&
+        "name" in obj && typeof obj.name === "string" &&
+        "username" in obj && typeof obj.username === "string" &&
+        "email" in obj && typeof obj.email === "string" &&
+        "phone" in obj && typeof obj.phone === "string" &&
+        "website" in obj && typeof obj.website === "string");
+}
 async function obtenerUsuarios() {
     try {
         const response = await fetch('https://jsonplaceholder.typicode.com/users');
@@ -14,7 +31,14 @@ async function obtenerUsuarios() {
             return { ok: false, error: `HTTP ${response.status}` };
         }
         const datos = await response.json();
-        return { ok: true, data: datos };
+        if (!Array.isArray(datos)) {
+            return { ok: false, error: "La API no devolvió un array" };
+        }
+        const usuariosValidados = datos.filter(esUsuario);
+        if (usuariosValidados.length === 0 && datos.length > 0) {
+            return { ok: false, error: "Todos los datos de la API fueron inválidos" };
+        }
+        return { ok: true, data: usuariosValidados };
     }
     catch (error) {
         return { ok: false, error: error.message };
@@ -76,7 +100,6 @@ function crearTarjeta(usuario) {
     // 3. Info de contacto (email, teléfono)
     const contacto = document.createElement("div");
     contacto.className = "space-y-2";
-    // 🔑 ESTA LÍNEA FALTABA
     const emailP = document.createElement("p");
     emailP.className = "text-slate-400 text-sm flex items-center gap-2";
     emailP.appendChild(crearIcono("email"));
@@ -120,6 +143,20 @@ function crearTarjeta(usuario) {
     card.appendChild(footer);
     return card;
 }
+function mostrarEstado(estado) {
+    loadingDiv.classList.add("hidden");
+    errorDiv.classList.add("hidden");
+    listaDiv.classList.add("hidden");
+    if (estado === "loading") {
+        loadingDiv.classList.remove("hidden");
+    }
+    else if (estado === "error") {
+        errorDiv.classList.remove("hidden");
+    }
+    else {
+        listaDiv.classList.remove("hidden");
+    }
+}
 async function iniciar() {
     mostrarEstado("loading");
     announceStatus("Cargando usuarios..."); // ← NUEVO
@@ -148,18 +185,11 @@ async function iniciar() {
         });
     }
 }
-iniciar();
-function mostrarEstado(estado) {
-    loadingDiv.classList.add("hidden");
-    errorDiv.classList.add("hidden");
-    listaDiv.classList.add("hidden");
-    if (estado === "loading") {
-        loadingDiv.classList.remove("hidden");
-    }
-    else if (estado === "error") {
-        errorDiv.classList.remove("hidden");
-    }
-    else {
-        listaDiv.classList.remove("hidden");
-    }
+// Botón de reintentar
+const btnRetry = document.getElementById("btn-retry");
+if (btnRetry) {
+    btnRetry.addEventListener("click", () => {
+        iniciar();
+    });
 }
+iniciar();
