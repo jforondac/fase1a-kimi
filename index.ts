@@ -1,4 +1,7 @@
-
+function announceStatus(mensaje: string) {
+  const announcer = document.getElementById("status-announce");
+  if (announcer) announcer.textContent = mensaje;
+}
 
 const loadingDiv = document.getElementById("loading") as HTMLDivElement;
 const errorDiv = document.getElementById("error") as HTMLDivElement;
@@ -60,7 +63,7 @@ function crearIcono(tipo: "email" | "phone" | "link"): SVGElement {
     path.setAttribute("d", "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14");
   }
 
-  svg.appendChild(path);
+  svg.appendChild(path)
   return svg;
 }
 
@@ -86,7 +89,7 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
   // Info del nombre
   const info = document.createElement("div");
 
-  const nombre = document.createElement("h3");
+  const nombre = document.createElement("h2");
   nombre.className = "text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors leading-tight";
   nombre.textContent = usuario.name; 
   const idSpan = document.createElement("span");
@@ -103,21 +106,29 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
   const contacto = document.createElement("div");
   contacto.className = "space-y-2";
 
-  // Email
+   // 🔑 ESTA LÍNEA FALTABA
   const emailP = document.createElement("p");
   emailP.className = "text-slate-400 text-sm flex items-center gap-2";
-  emailP.appendChild(crearIcono("email")); 
-  const emailSpan = document.createElement("span");
-  emailSpan.textContent = usuario.email;
-  emailP.appendChild(emailSpan);
+  emailP.appendChild(crearIcono("email"));
 
-  // Teléfono
+  // Email
+  const emailLink = document.createElement("a");
+  emailLink.href = `mailto:${usuario.email}`;
+  emailLink.textContent = usuario.email;
+  emailLink.className = "hover:text-cyan-400 transition-colors";
+  emailP.appendChild(emailLink);
+
+  // 🔑 ESTA LÍNEA FALTABA
   const phoneP = document.createElement("p");
   phoneP.className = "text-slate-500 text-sm flex items-center gap-2";
   phoneP.appendChild(crearIcono("phone"));
-  const phoneSpan = document.createElement("span");
-  phoneSpan.textContent = usuario.phone;
-  phoneP.appendChild(phoneSpan);
+
+  // Teléfono
+    const phoneLink = document.createElement("a");
+  phoneLink.href = `tel:${usuario.phone.replace(/\s+/g, '')}`;
+  phoneLink.textContent = usuario.phone;
+  phoneLink.className = "hover:text-purple-400 transition-colors";
+  phoneP.appendChild(phoneLink);
 
   contacto.appendChild(emailP);
   contacto.appendChild(phoneP);
@@ -150,21 +161,25 @@ function crearTarjeta(usuario: Usuario): HTMLElement {
 
 async function iniciar() {
   mostrarEstado("loading");
-
+  announceStatus("Cargando usuarios..."); // ← NUEVO
   const resultado = await obtenerUsuarios();
 
   if (!resultado.ok) {
     // Hubo un error real (red, servidor, etc.)
     mostrarEstado("error");
+    announceStatus("Error al cargar usuarios"); // ← NUEVO
     // Opcional: mostrar el error específico en consola
     console.error("Error:", resultado.error);
   } else if (resultado.data.length === 0) {
     // Conexión OK, pero no hay usuarios
     mostrarEstado("lista"); // mostramos lista vacía
+    announceStatus("No hay usuarios registrados"); // ← NUEVO
+
     listaDiv.innerHTML = "<p class='text-slate-400 text-center'>No hay usuarios registrados.</p>";
   } else {
     // Todo bien, hay usuarios
     mostrarEstado("lista");
+    announceStatus("Usuarios cargados correctamente"); // ← NUEVO
     listaDiv.innerHTML = "";
     resultado.data.forEach(usuario => {
       const card = crearTarjeta(usuario);

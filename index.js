@@ -1,4 +1,9 @@
 "use strict";
+function announceStatus(mensaje) {
+    const announcer = document.getElementById("status-announce");
+    if (announcer)
+        announcer.textContent = mensaje;
+}
 const loadingDiv = document.getElementById("loading");
 const errorDiv = document.getElementById("error");
 const listaDiv = document.getElementById("lista");
@@ -58,7 +63,7 @@ function crearTarjeta(usuario) {
     avatar.textContent = usuario.name.charAt(0); // textContent = SEGURO (escapa HTML)
     // Info del nombre
     const info = document.createElement("div");
-    const nombre = document.createElement("h3");
+    const nombre = document.createElement("h2");
     nombre.className = "text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors leading-tight";
     nombre.textContent = usuario.name;
     const idSpan = document.createElement("span");
@@ -71,20 +76,26 @@ function crearTarjeta(usuario) {
     // 3. Info de contacto (email, teléfono)
     const contacto = document.createElement("div");
     contacto.className = "space-y-2";
-    // Email
+    // 🔑 ESTA LÍNEA FALTABA
     const emailP = document.createElement("p");
     emailP.className = "text-slate-400 text-sm flex items-center gap-2";
     emailP.appendChild(crearIcono("email"));
-    const emailSpan = document.createElement("span");
-    emailSpan.textContent = usuario.email;
-    emailP.appendChild(emailSpan);
-    // Teléfono
+    // Email
+    const emailLink = document.createElement("a");
+    emailLink.href = `mailto:${usuario.email}`;
+    emailLink.textContent = usuario.email;
+    emailLink.className = "hover:text-cyan-400 transition-colors";
+    emailP.appendChild(emailLink);
+    // 🔑 ESTA LÍNEA FALTABA
     const phoneP = document.createElement("p");
     phoneP.className = "text-slate-500 text-sm flex items-center gap-2";
     phoneP.appendChild(crearIcono("phone"));
-    const phoneSpan = document.createElement("span");
-    phoneSpan.textContent = usuario.phone;
-    phoneP.appendChild(phoneSpan);
+    // Teléfono
+    const phoneLink = document.createElement("a");
+    phoneLink.href = `tel:${usuario.phone.replace(/\s+/g, '')}`;
+    phoneLink.textContent = usuario.phone;
+    phoneLink.className = "hover:text-purple-400 transition-colors";
+    phoneP.appendChild(phoneLink);
     contacto.appendChild(emailP);
     contacto.appendChild(phoneP);
     // 4. Website link
@@ -111,21 +122,25 @@ function crearTarjeta(usuario) {
 }
 async function iniciar() {
     mostrarEstado("loading");
+    announceStatus("Cargando usuarios..."); // ← NUEVO
     const resultado = await obtenerUsuarios();
     if (!resultado.ok) {
         // Hubo un error real (red, servidor, etc.)
         mostrarEstado("error");
+        announceStatus("Error al cargar usuarios"); // ← NUEVO
         // Opcional: mostrar el error específico en consola
         console.error("Error:", resultado.error);
     }
     else if (resultado.data.length === 0) {
         // Conexión OK, pero no hay usuarios
         mostrarEstado("lista"); // mostramos lista vacía
+        announceStatus("No hay usuarios registrados"); // ← NUEVO
         listaDiv.innerHTML = "<p class='text-slate-400 text-center'>No hay usuarios registrados.</p>";
     }
     else {
         // Todo bien, hay usuarios
         mostrarEstado("lista");
+        announceStatus("Usuarios cargados correctamente"); // ← NUEVO
         listaDiv.innerHTML = "";
         resultado.data.forEach(usuario => {
             const card = crearTarjeta(usuario);
